@@ -7,6 +7,8 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.HandlerThread;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
@@ -21,10 +23,10 @@ import android.util.Log;
 
 import static android.app.PendingIntent.getActivity;
 
-public class MainActivity extends Activity {
+
+public class MainActivity extends Activity  {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-
     public final static String EXTRA_MESSAGE = "com.mycompany.myfirstapp.MESSAGE";
 
     private boolean isFirstRun() {
@@ -84,17 +86,17 @@ public class MainActivity extends Activity {
 
         if (on) {
             Log.d(TAG, "Starting async task");
-            RegistrationTask t = new RegistrationTask();
-            t.execute("");
+            HandlerThread myThread = new HandlerThread("Worker Thread");
+            myThread.start();
+            Looper mLooper = myThread.getLooper();
+            ChangeOfStateHandler mHandler = new ChangeOfStateHandler(mLooper);
             TelephonyManager tm = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
-            tm.listen(new PhoneStateListenerTask(tm), PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
+            tm.listen(new PhoneStateListenerTask(tm,mHandler), PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
             LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, new LocationListenerTask());
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 60000*2, 10, new LocationListenerTask(mHandler));
         } else {
             Log.d(TAG, "Stopping async task");
             //t.cancel(false);
         }
     }
-
-    
 }
