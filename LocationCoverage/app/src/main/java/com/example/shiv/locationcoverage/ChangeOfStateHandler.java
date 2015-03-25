@@ -4,6 +4,7 @@ import android.location.Location;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.os.SystemClock;
 import android.util.Log;
 
 import org.apache.http.client.HttpClient;
@@ -12,6 +13,13 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.entity.StringEntity;
 
 import com.google.gson.Gson;
+
+import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import java.io.InputStream;
 
 /**
  * Created by shivu on 3/22/2015.
@@ -23,6 +31,8 @@ public class ChangeOfStateHandler extends Handler {
         private double longitude;
         private double latitude;
         private int    signalLevel;
+        private String networkProviderName;
+        private double dataSpeed;
 
         public void setLongitude(double longitude) {
             this.longitude = longitude;
@@ -36,6 +46,10 @@ public class ChangeOfStateHandler extends Handler {
             this.signalLevel = signalLevel;
         }
 
+        public void setNetworkProviderName(String networkProviderName) { this.networkProviderName = networkProviderName;}
+
+        public void setDataSpeed(double dataSpeed) { this.dataSpeed = dataSpeed;}
+
         public double getLongitude() {
             return longitude;
         }
@@ -47,6 +61,10 @@ public class ChangeOfStateHandler extends Handler {
         public int getSignalLevel() {
             return signalLevel;
         }
+
+        public String getNetworkProviderName() {return networkProviderName;}
+
+        public double getDataSpeed() { return dataSpeed;}
     }
 
     private static final String TAG = ChangeOfStateHandler.class.getSimpleName();
@@ -76,6 +94,37 @@ public class ChangeOfStateHandler extends Handler {
 
     }
 
+    private double measureSpeed() {
+        double speed = 0.0;
+        try {
+            URL url = new URL("http://crevisio.com/photos/193-PiQA9tpp3/Crevisio-193-PiQA9tpp3.jpg");
+            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setUseCaches(false);
+            urlConnection.setRequestMethod("GET");
+            urlConnection.setDoOutput(true);
+            urlConnection.connect();
+            InputStream inputStream = urlConnection.getInputStream();
+            int totalSize = urlConnection.getContentLength();
+            byte[] buffer = new byte[4096];
+            int bufferLength = 0;
+            int downloadSize = 0;
+            long start= SystemClock.uptimeMillis();
+            while ( (bufferLength = inputStream.read(buffer)) > 0 ) { downloadSize += bufferLength;}
+            if (downloadSize != totalSize) {
+                Log.d(TAG, "size="+totalSize + "actual="+downloadSize);
+            }
+            long end=SystemClock.uptimeMillis();
+            double downloadTime = (end - start) * 1000.00;
+            speed = (totalSize * 8.00) / downloadTime;
+            Log.d(TAG, "speed="+speed + "downloadtime="+downloadTime);
+        } catch (MalformedURLException e) {
+            Log.d(TAG, "Error while opening url");
+        } catch (IOException e) {
+            Log.d(TAG, "Error while downloading file");
+        }
+        return speed;
+    }
+
     public void handleMessage(Message msg) {
 
         ChangeOfStateMessage chngMsg = (ChangeOfStateMessage)msg.obj;
@@ -90,6 +139,8 @@ public class ChangeOfStateHandler extends Handler {
                 cParams.setLongitude(lInfo.getLongitude());
                 cParams.setLatitude(lInfo.getLatitude());
                 cParams.setSignalLevel(m_coverageInfo.getSignalStrengthLevel());
+                cParams.setNetworkProviderName(m_coverageInfo.getNetworkProviderName());
+                cParams.setDataSpeed(measureSpeed());
                 postToServer(cParams);
             }
             m_locationInfo = lInfo;
@@ -104,6 +155,8 @@ public class ChangeOfStateHandler extends Handler {
                 cParams.setLongitude(m_locationInfo.getLongitude());
                 cParams.setLatitude(m_locationInfo.getLatitude());
                 cParams.setSignalLevel(cInfo.getSignalStrengthLevel());
+                cParams.setNetworkProviderName(cInfo.getNetworkProviderName());
+                cParams.setDataSpeed(measureSpeed());
                 postToServer(cParams);
             }
             m_coverageInfo = cInfo;

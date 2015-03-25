@@ -30,6 +30,7 @@ public class PhoneStateListenerTask extends PhoneStateListener {
         super.onSignalStrengthsChanged(signalStrength);
 
         CoverageInfo cInfo = new CoverageInfo();
+        cInfo.setNetworkProviderName(mTmngr.getNetworkOperatorName());
         ChangeOfStateMessage chngMsg = new ChangeOfStateMessage(false);
         chngMsg.setCoverageInfo(cInfo);
         Message msg = m_chngHdlr.obtainMessage();
