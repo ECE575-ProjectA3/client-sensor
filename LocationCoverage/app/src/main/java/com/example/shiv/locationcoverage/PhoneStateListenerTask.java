@@ -53,7 +53,7 @@ public class PhoneStateListenerTask extends PhoneStateListener {
                     }*/
                     if (mthd.getName().equals("getLteSignalStrength")) {
                         int signalLevel = (Integer)mthd.invoke(signalStrength);
-                        cInfo.setSignalStrengthLevel(signalLevel);
+                        cInfo.setSignalStrengthLevel(signalLevel/8);
                     }
                 }
             } catch (SecurityException e) {

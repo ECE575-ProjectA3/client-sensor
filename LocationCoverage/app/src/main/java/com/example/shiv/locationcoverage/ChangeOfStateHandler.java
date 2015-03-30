@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.os.SystemClock;
+import android.text.format.Time;
 import android.util.Log;
 
 import org.apache.http.client.HttpClient;
@@ -33,6 +34,11 @@ public class ChangeOfStateHandler extends Handler {
         private int    signalLevel;
         private String networkProviderName;
         private double dataSpeed;
+        private int    month;
+        private int    monthDay;
+        private int    year;
+        private int    hour;
+        private int    minute;
 
         public void setLongitude(double longitude) {
             this.longitude = longitude;
@@ -50,6 +56,16 @@ public class ChangeOfStateHandler extends Handler {
 
         public void setDataSpeed(double dataSpeed) { this.dataSpeed = dataSpeed;}
 
+        public void setMonth(int month) {this.month = month;}
+
+        public void setMonthDay(int monthDay) { this.monthDay = monthDay;}
+
+        public void setYear(int year) { this.year = year;}
+
+        public void setHour(int hour) { this.hour = hour;}
+
+        public void setMinute(int minute) {this.minute = minute;}
+
         public double getLongitude() {
             return longitude;
         }
@@ -65,6 +81,16 @@ public class ChangeOfStateHandler extends Handler {
         public String getNetworkProviderName() {return networkProviderName;}
 
         public double getDataSpeed() { return dataSpeed;}
+
+        public int getMonth() { return month;}
+
+        public int getMonthDay() { return monthDay;}
+
+        public int getYear() { return year;}
+
+        public int getHour() { return hour;}
+
+        public int getMinute() { return minute;}
     }
 
     private static final String TAG = ChangeOfStateHandler.class.getSimpleName();
@@ -141,6 +167,13 @@ public class ChangeOfStateHandler extends Handler {
                 cParams.setSignalLevel(m_coverageInfo.getSignalStrengthLevel());
                 cParams.setNetworkProviderName(m_coverageInfo.getNetworkProviderName());
                 cParams.setDataSpeed(measureSpeed());
+                Time today = new Time(Time.getCurrentTimezone());
+                today.setToNow();
+                cParams.setMonth(today.month+1);
+                cParams.setMonthDay(today.monthDay);
+                cParams.setYear(today.year);
+                cParams.setHour(today.hour);
+                cParams.setMinute(today.minute);
                 postToServer(cParams);
             }
             m_locationInfo = lInfo;
@@ -157,6 +190,13 @@ public class ChangeOfStateHandler extends Handler {
                 cParams.setSignalLevel(cInfo.getSignalStrengthLevel());
                 cParams.setNetworkProviderName(cInfo.getNetworkProviderName());
                 cParams.setDataSpeed(measureSpeed());
+                Time today = new Time(Time.getCurrentTimezone());
+                today.setToNow();
+                cParams.setMonth(today.month+1);
+                cParams.setMonthDay(today.monthDay);
+                cParams.setYear(today.year);
+                cParams.setHour(today.hour);
+                cParams.setMinute(today.minute);
                 postToServer(cParams);
             }
             m_coverageInfo = cInfo;
