@@ -86,12 +86,12 @@ public class MainActivity extends Activity  {
     public void onToggleClicked(View view) {
         // Is the toggle on?
         boolean on = ((ToggleButton) view).isChecked();
-        HandlerThread myThread = new HandlerThread("Worker Thread");
-        HandlerThread wifiThread=new HandlerThread("Wifi Worker thread");
+
+        //HandlerThread wifiThread=new HandlerThread("Wifi Worker thread");
 
         if (on) {
-            Log.d(TAG, "Starting async task");
-            wifiThread.start();
+            /* @SWARUPA - Lets discuss how to add this efficiently */
+            /*wifiThread.start();
             Looper wifiLooper=wifiThread.getLooper();
             ChangeOfStateHandler wifiHandler= new ChangeOfStateHandler(wifiLooper);
             WifiManager wifiManager= (WifiManager) getSystemService(WIFI_SERVICE);
@@ -100,7 +100,7 @@ public class MainActivity extends Activity  {
             {
                 Integer linkSpeed = wifiInfo.getLinkSpeed();
                 Log.d(TAG,"Wifi Link speed"+linkSpeed);
-            }
+            }*/
 
 
             /*
@@ -111,6 +111,7 @@ public class MainActivity extends Activity  {
 
             */
 
+            HandlerThread myThread = new HandlerThread("Worker Thread");
             myThread.start();
             Looper mLooper = myThread.getLooper();
             ChangeOfStateHandler mHandler = new ChangeOfStateHandler(mLooper);
@@ -120,8 +121,8 @@ public class MainActivity extends Activity  {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 60000*2, 10, new LocationListenerTask(mHandler));
         } else {
             Log.d(TAG, "Stopping async task");
-            myThread.quit();
-            wifiThread.quit();
+            /*myThread.quit();
+            wifiThread.quit();*/
             //t.cancel(false);
         }
     }

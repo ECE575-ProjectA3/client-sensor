@@ -21,6 +21,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * Created by shivu on 3/22/2015.
@@ -29,68 +32,68 @@ public class ChangeOfStateHandler extends Handler {
 
     class CoverageParams {
 
-        private double longitude;
-        private double latitude;
-        private int    signalLevel;
-        private String networkProviderName;
-        private double dataSpeed;
-        private int    month;
-        private int    monthDay;
-        private int    year;
-        private int    hour;
-        private int    minute;
+        private Double 	longitude;
+        private Double 	latitude;
+        private Integer signalLevel;
+        private String  networkProviderName;
+        private Double  dataSpeed;
+        private Double  dataUploadSpeed;
+        private Integer wifiSignalLevel;
+        private Double  wifiDownloadSpeed;
+        private Double  wifiUploadSpeed;
+        private String 	dateTime;
 
-        public void setLongitude(double longitude) {
+        public void setLongitude(Double longitude) {
             this.longitude = longitude;
         }
 
-        public void setLatitude(double latitude) {
+        public void setLatitude(Double latitude) {
             this.latitude = latitude;
         }
 
-        public void setSignalLevel(int signalLevel) {
+        public void setSignalLevel(Integer signalLevel) {
             this.signalLevel = signalLevel;
         }
 
         public void setNetworkProviderName(String networkProviderName) { this.networkProviderName = networkProviderName;}
 
-        public void setDataSpeed(double dataSpeed) { this.dataSpeed = dataSpeed;}
+        public void setDataSpeed(Double dataSpeed) { this.dataSpeed = dataSpeed;}
 
-        public void setMonth(int month) {this.month = month;}
+        public void setDataUploadSpeed(Double dataUploadSpeed) { this.dataUploadSpeed = dataUploadSpeed;}
 
-        public void setMonthDay(int monthDay) { this.monthDay = monthDay;}
+        public void setWifiSignalLevel(Integer wifiSignalLevel) { this.wifiSignalLevel = wifiSignalLevel;}
 
-        public void setYear(int year) { this.year = year;}
+        public void setWifiDownloadSpeed(Double wifiDownloadSpeed) { this.wifiDownloadSpeed = wifiDownloadSpeed;}
 
-        public void setHour(int hour) { this.hour = hour;}
+        public void setWifiUploadSpeed(Double wifiUploadSpeed) { this.wifiUploadSpeed = wifiUploadSpeed;}
 
-        public void setMinute(int minute) {this.minute = minute;}
+        public void setDateTime(String dateTime) {this.dateTime = dateTime;}
 
-        public double getLongitude() {
+        public Double getLongitude() {
             return longitude;
         }
 
-        public double getLatitude() {
+        public Double getLatitude() {
             return latitude;
         }
 
-        public int getSignalLevel() {
+        public Integer getSignalLevel() {
             return signalLevel;
         }
 
         public String getNetworkProviderName() {return networkProviderName;}
 
-        public double getDataSpeed() { return dataSpeed;}
+        public Double getDataSpeed() { return dataSpeed;}
 
-        public int getMonth() { return month;}
+        public Double getDataUploadSpeed() { return dataUploadSpeed; }
 
-        public int getMonthDay() { return monthDay;}
+        public Integer getWifiSignalLevel() { return wifiSignalLevel; }
 
-        public int getYear() { return year;}
+        public Double getWifiDownloadSpeed() { return wifiDownloadSpeed;}
 
-        public int getHour() { return hour;}
+        public Double getWifiUploadSpeed() { return wifiUploadSpeed;}
 
-        public int getMinute() { return minute;}
+        public String getDateTime() { return dateTime;}
     }
 
     private static final String TAG = ChangeOfStateHandler.class.getSimpleName();
@@ -107,7 +110,8 @@ public class ChangeOfStateHandler extends Handler {
         HttpClient httpclient = new DefaultHttpClient();
         Gson gson = new Gson();
         try {
-            HttpPost request = new HttpPost("http://192.168.1.153:8080/update");
+            String url = "http://192.168.1.153:8080/"+cParams.getNetworkProviderName();
+            HttpPost request = new HttpPost(url);
             StringEntity se = new StringEntity(gson.toJson(cParams));
             request.addHeader("content-type", "application/json");
             request.setEntity(se);
@@ -167,13 +171,10 @@ public class ChangeOfStateHandler extends Handler {
                 cParams.setSignalLevel(m_coverageInfo.getSignalStrengthLevel());
                 cParams.setNetworkProviderName(m_coverageInfo.getNetworkProviderName());
                 cParams.setDataSpeed(measureSpeed());
-                Time today = new Time(Time.getCurrentTimezone());
-                today.setToNow();
-                cParams.setMonth(today.month+1);
-                cParams.setMonthDay(today.monthDay);
-                cParams.setYear(today.year);
-                cParams.setHour(today.hour);
-                cParams.setMinute(today.minute);
+                SimpleDateFormat dateFormat = new SimpleDateFormat(
+                        "yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+                Date date = new Date();
+                cParams.setDateTime(dateFormat.format(date));
                 postToServer(cParams);
             }
             m_locationInfo = lInfo;
@@ -190,13 +191,10 @@ public class ChangeOfStateHandler extends Handler {
                 cParams.setSignalLevel(cInfo.getSignalStrengthLevel());
                 cParams.setNetworkProviderName(cInfo.getNetworkProviderName());
                 cParams.setDataSpeed(measureSpeed());
-                Time today = new Time(Time.getCurrentTimezone());
-                today.setToNow();
-                cParams.setMonth(today.month+1);
-                cParams.setMonthDay(today.monthDay);
-                cParams.setYear(today.year);
-                cParams.setHour(today.hour);
-                cParams.setMinute(today.minute);
+                SimpleDateFormat dateFormat = new SimpleDateFormat(
+                        "yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+                Date date = new Date();
+                cParams.setDateTime(dateFormat.format(date));
                 postToServer(cParams);
             }
             m_coverageInfo = cInfo;
