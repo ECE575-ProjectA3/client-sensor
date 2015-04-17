@@ -30,70 +30,118 @@ import java.util.Locale;
  */
 public class ChangeOfStateHandler extends Handler {
 
-    class CoverageParams {
+    /* This class has to be in sync with server code */
+    public class CoverageParams {
+        private double latitude;
+        private double longitude;
+        private String carrierName;
+        private String dateTime;
 
-        private Double 	longitude;
-        private Double 	latitude;
-        private Integer signalLevel;
-        private String  networkProviderName;
-        private Double  dataSpeed;
-        private Double  dataUploadSpeed;
-        private Integer wifiSignalLevel;
-        private Double  wifiDownloadSpeed;
-        private Double  wifiUploadSpeed;
-        private String 	dateTime;
+        private int    signalStrength;
+        private double downloadSpeed;
+        private double uploadSpeed;
+        private int    wifiSignalStrength;
+        private double wifiDownloadSpeed;
+        private double wifiUploadSpeed;
 
-        public void setLongitude(Double longitude) {
-            this.longitude = longitude;
+        CoverageParams(double latitude, double longitude, String carrierName, String dateTime,
+                       int signalStrength, double downloadSpeed, double uploadSpeed,
+                       int wifiSignalStrength, double wifiDownloadSpeed, double wifiUploadSpeed) {
+
+            setLatitude(latitude);
+            setLongitude(longitude);
+            setCarrierName(carrierName);
+            setDateTime(dateTime);
+
+            setSignalStrength(signalStrength);
+            setDownloadSpeed(downloadSpeed);
+            setUploadSpeed(uploadSpeed);
+
+            setWifiSignalStrength(wifiSignalStrength);
+            setWifiDownloadSpeed(wifiDownloadSpeed);
+            setWifiUploadSpeed(wifiUploadSpeed);
         }
+        CoverageParams(double latitude, double longitude, String carrierName, String dateTime,
+                       int signalStrength, double downloadSpeed, double uploadSpeed) {
 
-        public void setLatitude(Double latitude) {
+            setLatitude(latitude);
+            setLongitude(longitude);
+            setCarrierName(carrierName);
+            setDateTime(dateTime);
+
+            setSignalStrength(signalStrength);
+            setDownloadSpeed(downloadSpeed);
+            setUploadSpeed(uploadSpeed);
+        }
+        CoverageParams(double latitude, double longitude, String carrierName, String dateTime) {
+            setLatitude(latitude);
+            setLongitude(longitude);
+            setCarrierName(carrierName);
+            setDateTime(dateTime);
+        }
+        CoverageParams() {}
+
+        public void setLatitude(double latitude) {
             this.latitude = latitude;
         }
-
-        public void setSignalLevel(Integer signalLevel) {
-            this.signalLevel = signalLevel;
+        public void setLongitude(double longitude) {
+            this.longitude = longitude;
+        }
+        public void setCarrierName(String carrierName) {
+            this.carrierName = carrierName;
+        }
+        public void setDateTime(String dateTime) {
+            this.dateTime = dateTime;
+        }
+        public void setSignalStrength(int signalStrength) {
+            this.signalStrength = signalStrength;
+        }
+        public void setDownloadSpeed(double downloadSpeed) {
+            this.downloadSpeed = downloadSpeed;
+        }
+        public void setUploadSpeed(double uploadSpeed) {
+            this.uploadSpeed = uploadSpeed;
+        }
+        public void setWifiSignalStrength(Integer wifiSignalStrength) {
+            this.wifiSignalStrength = wifiSignalStrength;
+        }
+        public void setWifiDownloadSpeed(Double wifiDownloadSpeed) {
+            this.wifiDownloadSpeed = wifiDownloadSpeed;
+        }
+        public void setWifiUploadSpeed(Double wifiUploadSpeed) {
+            this.wifiUploadSpeed = wifiUploadSpeed;
         }
 
-        public void setNetworkProviderName(String networkProviderName) { this.networkProviderName = networkProviderName;}
-
-        public void setDataSpeed(Double dataSpeed) { this.dataSpeed = dataSpeed;}
-
-        public void setDataUploadSpeed(Double dataUploadSpeed) { this.dataUploadSpeed = dataUploadSpeed;}
-
-        public void setWifiSignalLevel(Integer wifiSignalLevel) { this.wifiSignalLevel = wifiSignalLevel;}
-
-        public void setWifiDownloadSpeed(Double wifiDownloadSpeed) { this.wifiDownloadSpeed = wifiDownloadSpeed;}
-
-        public void setWifiUploadSpeed(Double wifiUploadSpeed) { this.wifiUploadSpeed = wifiUploadSpeed;}
-
-        public void setDateTime(String dateTime) {this.dateTime = dateTime;}
-
-        public Double getLongitude() {
-            return longitude;
+        public double getLongitude() {
+            return this.longitude;
         }
-
-        public Double getLatitude() {
-            return latitude;
+        public double getLatitude() {
+            return this.latitude;
         }
-
-        public Integer getSignalLevel() {
-            return signalLevel;
+        public String getCarrierName() {
+            return this.carrierName;
         }
-
-        public String getNetworkProviderName() {return networkProviderName;}
-
-        public Double getDataSpeed() { return dataSpeed;}
-
-        public Double getDataUploadSpeed() { return dataUploadSpeed; }
-
-        public Integer getWifiSignalLevel() { return wifiSignalLevel; }
-
-        public Double getWifiDownloadSpeed() { return wifiDownloadSpeed;}
-
-        public Double getWifiUploadSpeed() { return wifiUploadSpeed;}
-
-        public String getDateTime() { return dateTime;}
+        public String getDateTime() {
+            return this.dateTime;
+        }
+        public int getSignalStrength() {
+            return this.signalStrength;
+        }
+        public Double getDownloadSpeed() {
+            return this.downloadSpeed;
+        }
+        public Double getUploadSpeed() {
+            return this.uploadSpeed;
+        }
+        public Integer getWifiSignalStrength() {
+            return wifiSignalStrength;
+        }
+        public Double getWifiDownloadSpeed() {
+            return wifiDownloadSpeed;
+        }
+        public Double getWifiUploadSpeed() {
+            return wifiUploadSpeed;
+        }
     }
 
     private static final String TAG = ChangeOfStateHandler.class.getSimpleName();
@@ -110,7 +158,7 @@ public class ChangeOfStateHandler extends Handler {
         HttpClient httpclient = new DefaultHttpClient();
         Gson gson = new Gson();
         try {
-            String url = "http://192.168.1.153:8080/"+cParams.getNetworkProviderName();
+            String url = "http://192.168.1.153:8080/update";
             HttpPost request = new HttpPost(url);
             StringEntity se = new StringEntity(gson.toJson(cParams));
             request.addHeader("content-type", "application/json");
@@ -126,6 +174,7 @@ public class ChangeOfStateHandler extends Handler {
 
     private double measureSpeed() {
         double speed = 0.0;
+        // We measure speed by downloading huge image file and checking how much time it takes
         try {
             URL url = new URL("http://crevisio.com/photos/193-PiQA9tpp3/Crevisio-193-PiQA9tpp3.jpg");
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
@@ -157,9 +206,12 @@ public class ChangeOfStateHandler extends Handler {
 
     public void handleMessage(Message msg) {
 
+        // We have received change of state message
         ChangeOfStateMessage chngMsg = (ChangeOfStateMessage)msg.obj;
         if (chngMsg.isLocationChanged() == true) {
+            // Location has changed
             LocationInfo lInfo = chngMsg.getLocationInfo();
+            // Post only if data has changed significantly
             if (lInfo.isChnaged(m_locationInfo) && m_coverageInfo!=null) {
                 Log.d(TAG, "Location has changed");
                 Log.d(TAG,"Longitude" + lInfo.getLongitude() + ", latitude" + lInfo.getLatitude());
@@ -168,18 +220,19 @@ public class ChangeOfStateHandler extends Handler {
                 CoverageParams cParams = new CoverageParams();
                 cParams.setLongitude(lInfo.getLongitude());
                 cParams.setLatitude(lInfo.getLatitude());
-                cParams.setSignalLevel(m_coverageInfo.getSignalStrengthLevel());
-                cParams.setNetworkProviderName(m_coverageInfo.getNetworkProviderName());
-                cParams.setDataSpeed(measureSpeed());
+                cParams.setSignalStrength(m_coverageInfo.getSignalStrengthLevel());
+                cParams.setCarrierName(m_coverageInfo.getNetworkProviderName());
+                cParams.setDownloadSpeed(measureSpeed());
                 SimpleDateFormat dateFormat = new SimpleDateFormat(
                         "yyyy-MM-dd HH:mm:ss", Locale.getDefault());
                 Date date = new Date();
                 cParams.setDateTime(dateFormat.format(date));
-                postToServer(cParams);
+                postToServer(cParams); // post the data to server
             }
             m_locationInfo = lInfo;
         } else {
             CoverageInfo cInfo = chngMsg.getCoverageInfo();
+            // Post only if data has changed significantly
             if (cInfo.isChanged(m_coverageInfo) && m_locationInfo != null) {
                 Log.d(TAG, "Coverage has changed");
                 Log.d(TAG,"Longitude" + m_locationInfo.getLongitude() + ", latitude" + m_locationInfo.getLatitude());
@@ -188,9 +241,9 @@ public class ChangeOfStateHandler extends Handler {
                 CoverageParams cParams = new CoverageParams();
                 cParams.setLongitude(m_locationInfo.getLongitude());
                 cParams.setLatitude(m_locationInfo.getLatitude());
-                cParams.setSignalLevel(cInfo.getSignalStrengthLevel());
-                cParams.setNetworkProviderName(cInfo.getNetworkProviderName());
-                cParams.setDataSpeed(measureSpeed());
+                cParams.setSignalStrength(cInfo.getSignalStrengthLevel());
+                cParams.setCarrierName(cInfo.getNetworkProviderName());
+                cParams.setDownloadSpeed(measureSpeed());
                 SimpleDateFormat dateFormat = new SimpleDateFormat(
                         "yyyy-MM-dd HH:mm:ss", Locale.getDefault());
                 Date date = new Date();

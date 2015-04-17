@@ -9,8 +9,8 @@
         android:id="@+id/togglebutton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textOn="Start track"
-        android:textOff="Stop track"
+        android:textOn="Stop track"
+        android:textOff="Start track"
         android:onClick="onToggleClicked"
         android:layout_gravity="center"/>
 </LinearLayout>
