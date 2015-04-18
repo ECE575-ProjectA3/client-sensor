@@ -11,21 +11,20 @@ import android.util.Log;
  */
 public class LocationListenerTask implements LocationListener {
 
-    ChangeOfStateHandler m_chngHdlr;
-    private static final String TAG = LocationListenerTask.class.getSimpleName();
+    StateChangeHandler m_chngHdlr;
+    private static final String TAG = "APP_DEBUG" + LocationListenerTask.class.getSimpleName();
 
-    LocationListenerTask(ChangeOfStateHandler chngHdlr) {
+    LocationListenerTask(StateChangeHandler chngHdlr) {
         m_chngHdlr = chngHdlr;
     }
 
     public void onLocationChanged(Location location) {
         // Called when a new location is found by the network location provider.
-        //Log.d(TAG, "Latitude" + location.getLatitude());
-        //Log.d(TAG, "Longitude" + location.getLongitude());
+        //Log.d(TAG, "Location changed");
         LocationInfo lInfo = new LocationInfo();
         lInfo.setLongitude(location.getLongitude());
         lInfo.setLatitude(location.getLatitude());
-        ChangeOfStateMessage chngMsg = new ChangeOfStateMessage(true);
+        StateChangeMsg chngMsg = new StateChangeMsg(true);
         chngMsg.setLocationInfo(lInfo);
         Message msg = m_chngHdlr.obtainMessage();
         msg.obj = (Object)chngMsg;

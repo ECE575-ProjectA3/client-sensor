@@ -1,11 +1,9 @@
 package com.example.shiv.locationcoverage;
 
-import android.location.Location;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.os.SystemClock;
-import android.text.format.Time;
 import android.util.Log;
 
 import org.apache.http.client.HttpClient;
@@ -28,7 +26,11 @@ import java.util.Locale;
 /**
  * Created by shivu on 3/22/2015.
  */
-public class ChangeOfStateHandler extends Handler {
+public class StateChangeHandler extends Handler {
+
+    private static final String TAG = "APP_DEBUG" + StateChangeHandler.class.getSimpleName();
+    private LocationInfo m_locationInfo = null;
+    private CoverageInfo m_coverageInfo = null;
 
     /* This class has to be in sync with server code */
     public class CoverageParams {
@@ -144,12 +146,7 @@ public class ChangeOfStateHandler extends Handler {
         }
     }
 
-    private static final String TAG = ChangeOfStateHandler.class.getSimpleName();
-
-    private LocationInfo m_locationInfo = null;
-    private CoverageInfo m_coverageInfo = null;
-
-    public ChangeOfStateHandler(Looper l) {
+    public StateChangeHandler(Looper l) {
         super(l);
     }
 
@@ -158,7 +155,8 @@ public class ChangeOfStateHandler extends Handler {
         HttpClient httpclient = new DefaultHttpClient();
         Gson gson = new Gson();
         try {
-            String url = "http://192.168.1.153:8080/update";
+            //String url = "http://192.168.1.153:8080/update";
+            String url = "http://ece575a3.ddns.net:8080/update";
             HttpPost request = new HttpPost(url);
             StringEntity se = new StringEntity(gson.toJson(cParams));
             request.addHeader("content-type", "application/json");
@@ -207,7 +205,7 @@ public class ChangeOfStateHandler extends Handler {
     public void handleMessage(Message msg) {
 
         // We have received change of state message
-        ChangeOfStateMessage chngMsg = (ChangeOfStateMessage)msg.obj;
+        StateChangeMsg chngMsg = (StateChangeMsg)msg.obj;
         if (chngMsg.isLocationChanged() == true) {
             // Location has changed
             LocationInfo lInfo = chngMsg.getLocationInfo();

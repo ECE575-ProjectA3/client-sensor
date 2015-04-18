@@ -5,12 +5,12 @@ import android.location.Location;
 /**
  * Created by shivu on 3/22/2015.
  */
-public class ChangeOfStateMessage {
+public class StateChangeMsg {
     boolean m_isLocationChanged;
     LocationInfo m_linfo = null;
     CoverageInfo m_cinfo = null;
 
-    public ChangeOfStateMessage(boolean isLocationChanged) {
+    public StateChangeMsg(boolean isLocationChanged) {
         m_isLocationChanged = isLocationChanged;
     }
 

@@ -4,8 +4,6 @@ import android.os.Message;
 import android.telephony.PhoneStateListener;
 import android.telephony.SignalStrength;
 import android.telephony.TelephonyManager;
-import android.os.Build;
-import android.os.Bundle;
 import android.util.Log;
 
 import java.lang.reflect.InvocationTargetException;
@@ -17,10 +15,10 @@ import java.lang.reflect.Method;
 public class PhoneStateListenerTask extends PhoneStateListener {
 
     TelephonyManager mTmngr;
-    ChangeOfStateHandler m_chngHdlr;
-    private static final String TAG = PhoneStateListenerTask.class.getSimpleName();
+    StateChangeHandler m_chngHdlr;
+    private static final String TAG = "APP_DEBUG" + PhoneStateListenerTask.class.getSimpleName();
 
-    PhoneStateListenerTask(TelephonyManager tMngr,ChangeOfStateHandler chngHdlr) {
+    PhoneStateListenerTask(TelephonyManager tMngr,StateChangeHandler chngHdlr) {
         mTmngr = tMngr;
         m_chngHdlr = chngHdlr;
     }
@@ -29,9 +27,10 @@ public class PhoneStateListenerTask extends PhoneStateListener {
     public void onSignalStrengthsChanged(SignalStrength signalStrength) {
         super.onSignalStrengthsChanged(signalStrength);
 
+        //Log.d(TAG, "Coverage has changed");
         CoverageInfo cInfo = new CoverageInfo();
         cInfo.setNetworkProviderName(mTmngr.getNetworkOperatorName());
-        ChangeOfStateMessage chngMsg = new ChangeOfStateMessage(false);
+        StateChangeMsg chngMsg = new StateChangeMsg(false);
         chngMsg.setCoverageInfo(cInfo);
         Message msg = m_chngHdlr.obtainMessage();
         msg.obj = (Object)chngMsg;
@@ -66,7 +65,6 @@ public class PhoneStateListenerTask extends PhoneStateListener {
                 e.printStackTrace();
             }
         }
-
         m_chngHdlr.sendMessage(msg);
     }
 }
